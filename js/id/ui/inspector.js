@@ -46,30 +46,16 @@ iD.Inspector = function() {
                 .attr('class', 'head inspector-inner').call(drawhead);
 
             var inspectorwrap = selection
-                .append('ul').attr('class', 'inspector-inner tag-wrap fillL2');
+                .append('ul')
+                .attr('class', 'inspector-inner tag-wrap fillL2');
 
             inspectorwrap.append('h4').text('Edit tags');
-
-            inspectorwrap
-                .data(['tag', 'value', ''])
-                .enter();
 
             function removeTag(d) {
                 draw(grabtags().filter(function(t) { return t.key !== d.key; }));
             }
 
             function draw(data) {
-
-                var li = inspectorwrap.selectAll('li')
-                    .data(data, function(d) { return [d.key, d.value]; });
-
-                li.exit().remove();
-
-                var row = li.enter().append('li').attr('class','tag-row');
-                var inputs = row.append('div').attr('class','input-wrap');
-
-                function setValue(d, i) { d.value = this.value; }
-                function setKey(d, i) { d.key = this.value; }
 
                 function emptyTag(d) { return d.key === ''; }
 
@@ -92,19 +78,53 @@ iD.Inspector = function() {
                         }));
                 }
 
-                inputs.append('input')
-                    .property('type', 'text')
-                    .attr('class', 'key')
-                    .property('value', function(d, i) { return d.key; })
-                    .on('keyup.update', setKey);
+                var li = inspectorwrap.selectAll('li')
+                    .data(data);
 
-                inputs.append('input')
-                    .property('type', 'text')
-                    .attr('class', 'value')
-                    .property('value', function(d, i) { return d.value; })
-                    .on('keyup.update', setValue)
-                    .on('keydown.push-more', pushMore)
-                    .each(bindTypeahead);
+                li.exit().remove();
+
+                var row = li.enter()
+                    .append('li')
+                    .attr('class', 'tag-row');
+
+                function eq(d) { return [d]; }
+
+                var inputs = row
+                    .selectAll('div.input-wrap')
+                    .data(eq)
+                    .enter()
+                    .append('div')
+                    .attr('class', 'input-wrap')
+                    .each(function(d) {
+
+                        var ffuuuck = d3.select(this).append('input');
+                        /*
+                            .datum(d)
+                            .property('type', 'text')
+                            .attr('class', 'key-key')
+                            .on('keyup.update-key', function(d) {
+                                console.log(d);
+                                d.key = this.key;
+                            });
+                            */
+                            console.log(ffuuuck, ffuuuck.datum(), data);
+
+                            window.setTimeout(function() {
+                                console.log(data, ffuuuck.datum());
+                            }, 1000);
+
+                        d3.select(this).append('input')
+                            .datum(d)
+                            .property('type', 'text')
+                            .attr('class', 'value')
+                            // .property('value', function(d, i) { return d.value; })
+                            .on('keyup.update-value', function(d) {
+                                d.value = this.value;
+                            });
+                            // .on('keydown.push-more', pushMore);
+                            // .each(bindTypeahead);
+
+                    });
 
                 var removeBtn = row.append('button')
                     .attr('tabindex', -1)
@@ -141,7 +161,7 @@ iD.Inspector = function() {
             }
 
             var tags = d3.entries(_.clone(entity.tags));
-            if (tags.length === 0) tags = [{ key: '', value: '' }];
+            if (tags.length === 0) tags = d3.entries({'':''});
             draw(tags);
 
             selection.select('input').node().focus();

@@ -86,6 +86,7 @@ iD.modes.Select = function (entity) {
         }
 
         mode.map.surface.on('click.browse', function () {
+            console.log('browse click');
             var datum = d3.select(d3.event.target).datum();
             if (datum instanceof iD.Entity) {
                 mode.controller.enter(iD.modes.Select(datum));
